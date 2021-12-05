@@ -8,6 +8,6 @@
 #include "BoundBox.h"
 #include "bitmap.h"
 
-void draw_image(unsigned int * PixelBuffer, int width, int height, Particle * particle_list, int numParticles,Box * Boxes);
+void draw_image(unsigned int * PixelBuffer, int width, int height, Particle * particle_list, int numParticles, int * sub_particles);
 
 #endif

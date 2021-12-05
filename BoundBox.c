@@ -9,7 +9,7 @@ int * get_within_bounds(Box * Boxes, int box_num, vec_t min, vec_t max, int * P_
     int within = 1;
     for(int i = 0; i < dims; i++)
     {
-        within |= Boxes[box_num].max_pos.v[i] >= min.v[i] && Boxes[box_num].min_pos.v[i] <= max.v[i];
+        within &= ((Boxes[box_num].max_pos.v[i] >= min.v[i]) && (Boxes[box_num].min_pos.v[i] <= max.v[i]));
     }
     
     if (within)
@@ -46,6 +46,7 @@ int * get_within_bounds(Box * Boxes, int box_num, vec_t min, vec_t max, int * P_
 
 Box * build_boxes(Particle * particle_list, int numParticles, int sub_particles[numParticles],int BoxOffset, float timestep)
 {
+    //printf("Building Box %d, Num Particles %d\n",BoxOffset,numParticles);
 	Box * parent = (Box *) malloc(sizeof(Box));
 	
     parent->numBoxes = 1;
@@ -67,6 +68,7 @@ Box * build_boxes(Particle * particle_list, int numParticles, int sub_particles[
 	}
 	else if(numParticles == 1)
 	{
+        //printf("Leaf Box\n");
 		parent->num_P = numParticles;
 		parent->P_index = sub_particles[0];
 		
@@ -77,7 +79,8 @@ Box * build_boxes(Particle * particle_list, int numParticles, int sub_particles[
 		}
 		return parent;
 	}
-	
+	//printf("Parent Box\n");
+    //for(int j = 0; j < numParticles; j++)printf("SubParticle %d\n",sub_particles[j]);
 	int  * sub_particle_list[(1<<dims)];
 	int sub_particle_count[(1<<dims)];
     
@@ -92,10 +95,11 @@ Box * build_boxes(Particle * particle_list, int numParticles, int sub_particles[
 		int index = sub_particles[i];
 		for(int j = 0; j < dims; j++)
 		{
+            //printf("adding particle %d, pos %g to mid pos\n",index,(particle_list[index].pos.v[j]));
 			parent->mid_pos.v[j] = (particle_list[index].pos.v[j]/ ((float)numParticles)) + parent->mid_pos.v[j];
 		}
 	}
-    
+    //for(int j = 0; j < dims; j++)printf("ParentMid D %d:%g\n",j, parent->mid_pos.v[j]);
 	for(int i = 0; i < numParticles; i++)
 	{
 		int region = 0;
@@ -104,6 +108,7 @@ Box * build_boxes(Particle * particle_list, int numParticles, int sub_particles[
 		{
 			if (particle_list[index].pos.v[j] >= parent->mid_pos.v[j])region +=(1<<j);
 		}
+        //printf("Particle %d, reg %d\n",index, region);
 		sub_particle_count[region]+=1;
 		sub_particle_list[region] = realloc(sub_particle_list[region], sub_particle_count[region] * sizeof(int));
 		sub_particle_list[region][sub_particle_count[region] - 1] = index;
@@ -134,6 +139,6 @@ Box * build_boxes(Particle * particle_list, int numParticles, int sub_particles[
 			parent->children[i] = -1;
 		}
 	}
-    
+    //printf("Done Building Box %d\n",BoxOffset);
 	return parent;
 }

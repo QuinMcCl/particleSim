@@ -3,6 +3,9 @@
 
 #include <stdlib.h>
 
+#include <math.h>
+#include <stdio.h>
+
 #define dims 2
 enum AXIS {X, Y};
 
@@ -15,6 +18,7 @@ typedef struct{
     vec_t pos;      //pixels
     vec_t vel;      // pixels per frame
 	float radius;   // pixels
+	float mass;
 }Particle;
 
 Particle * init_particles(int numParticles,vec_t min, vec_t max);

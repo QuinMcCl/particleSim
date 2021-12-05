@@ -1,7 +1,9 @@
 #include "draw2D.h"
 
-void draw_image(unsigned int * PixelBuffer, int width, int height, Particle * particle_list, int numParticles, Box * Boxes)
+void draw_image(unsigned int * PixelBuffer, int width, int height, Particle * particle_list, int numParticles, int * sub_particles)
 {
+    Box * Boxes = build_boxes(particle_list, numParticles, sub_particles,0,0.0);
+    #pragma omp parallel for
     for(int i = 0; i < width * height; i++) {
 		
 		int x = i % width;
@@ -24,9 +26,11 @@ void draw_image(unsigned int * PixelBuffer, int width, int height, Particle * pa
                 color_val += sqrt(1 - distSq);
             }
         }
+        color_val = fmod(color_val,1.0);
         free(particle_indexes);
         color_t color = (color_t){1.0f,color_val,color_val,color_val};
 		PixelBuffer[x + y * width] = color_to_int(color);
 
 	}
+    free(Boxes);
 }

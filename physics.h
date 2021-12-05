@@ -6,7 +6,7 @@
 #include "particle.h"
 #include "BoundBox.h"
 
-void physics_step(Particle * particle_list, int numParticles, Box * Boxes, float timestep);
+void physics_step(Particle * particle_list, int numParticles, int * sub_particles, float timestep);
 
 
 #endif
