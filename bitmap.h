@@ -8,6 +8,7 @@ typedef struct {
 } color_t;
 
 unsigned int color_to_int(color_t color);
+#pragma acc routine(color_to_int) seq
 
 void save_bmp(unsigned char * data, int width, int height, char * title);
 

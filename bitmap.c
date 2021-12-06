@@ -3,7 +3,7 @@
 int BYTES_PER_PIXEL = 4;
 int BITMAP_FILE_HEADER_SIZE = 14;
 int BITMAP_INFO_HEADER_SIZE = 40;
-
+#pragma acc routine seq
 unsigned int color_to_int(color_t color) {
 	
 	// A B G R

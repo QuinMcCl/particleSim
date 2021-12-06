@@ -7,14 +7,13 @@
 #include "draw2D.h"
 #include "bitmap.h"
 
-int width = 1024;
-int height = 1024;
-int running = 1;
+int width = 1000;
+int height = 1000;
 
 int main(){
     // init the things that are used forever!
     srand(time(NULL));
-    int numParticles = 500;
+    int numParticles = 10;
     clock_t tick;
     clock_t tock;
     float timestep = 1.0f;
@@ -25,8 +24,9 @@ int main(){
     
     int * sub_particles = (int *) malloc(sizeof(int) * numParticles);
     for(int i = 0; i < numParticles; i++)sub_particles[i] = i;
+    #pragma acc enter data copyin(sub_particles[0:numParticles]) 
     int numFrame = 0;
-    while (numFrame < 50) {
+    while (numFrame < 500) {
         printf("Frame : %d\n",numFrame);
         tick = clock();
         //Move particles by 1 frame's worth of time
@@ -44,6 +44,7 @@ int main(){
         
         printf("Draw Done in %ld\n",tock-tick);
     }
+    #pragma acc exit data delete(sub_particles) 
     free(sub_particles);
     free(particle_list);
     free(PixelBuffer);

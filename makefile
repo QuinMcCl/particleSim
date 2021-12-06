@@ -1,6 +1,6 @@
 SHELL:=/usr/bin/bash
 CC=nvc
-CFLAGS=  -acc -mp -gpu=cc61 -Minfo=accel -Minfo=mp
+CFLAGS= -O3 -acc -gpu=cc61 -Minfo=accel #-Minfo=accel -mp -ta=multicore -gpu=cc61 -Minfo=accel -Minfo=mp
 DEPS = partticle.h BoundBox.h physics.h draw2D.h bitmap.h
 OBJ = main.o particle.o BoundBox.o physics.o draw2D.o bitmap.o
 LIBS = -lm 
@@ -20,4 +20,7 @@ main: $(OBJ)
 .PHONY: clean
 
 clean:
-	rm -f *.o main
+	rm -rf *.o
+	rm -f main
+	rm -rf Output/*
+	rm -f main_nsys.*

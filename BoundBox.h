@@ -19,6 +19,7 @@ typedef struct{
     vec_t mid_pos;
 }Box;
 
-Box * build_boxes(Particle * particle_list, int numParticles, int sub_particles[numParticles], int BoxOffset, float timestep);
+Box * build_boxes(Particle * particle_list, int numParticles, int * sub_particles, int BoxOffset, float timestep);
 int * get_within_bounds(Box * Boxes, int box_num, vec_t min, vec_t max, int * P_num);
+#pragma acc routine(get_within_bounds) seq
 #endif

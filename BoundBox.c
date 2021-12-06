@@ -2,9 +2,12 @@
 
 
 //returns the list of indexes of every particle index that intersects with bounds
+
+#pragma acc routine seq
 int * get_within_bounds(Box * Boxes, int box_num, vec_t min, vec_t max, int * P_num)
 {
-    int * ret = (int *) malloc(sizeof(int));
+    //printf("getWithin\n");
+    int * ret = NULL;
     if (Boxes == NULL)return NULL;
     int within = 1;
     for(int i = 0; i < dims; i++)
@@ -16,35 +19,48 @@ int * get_within_bounds(Box * Boxes, int box_num, vec_t min, vec_t max, int * P_
     {
         if(Boxes[box_num].P_index < 0)
         {
+            int childnum[(1<<dims)];
+            int * child_ret[(1<<dims)];
             for(int i = 0; i < (1<<dims); i++)
             {
+                childnum[i] = 0;
                 if(Boxes[box_num].children[i] > 0)
                 {
-                    int childnum = 0;
-                    int * child_ret = get_within_bounds(Boxes, Boxes[box_num].children[i], min, max, &childnum);
-                    
-                    ret = (int *)realloc(ret, sizeof(int) * (*P_num + childnum));
-                    memcpy(ret + (*P_num), child_ret, sizeof(int)*childnum);
-                    free(child_ret);
-                    
-                    *P_num += childnum;
+                    child_ret[i] = get_within_bounds(Boxes, Boxes[box_num].children[i], min, max, &childnum[i]);
+                    *P_num += childnum[i];
+                }
+                else
+                {
+                    child_ret[i] = NULL;
+                }
+            }
+            ret = (int *) malloc(sizeof(int) * (*P_num));
+            int accumulator = 0;
+            for(int i = 0; i < (1<<dims); i++)
+            {
+                
+                if(child_ret[i] != NULL)
+                {
+                    memcpy(ret + accumulator, child_ret[i], sizeof(int)*childnum[i]);
+                    accumulator += childnum[i];
+                    free(child_ret[i]);
                 }
             }
         }
         else
         {
+            ret = (int *) malloc(sizeof(int));
             ret[0] = Boxes[box_num].P_index;
             *P_num += 1;
         }
     
     }
-    
-    
+    //printf("DoneWithin\n");
     return ret;
 }
 
 
-Box * build_boxes(Particle * particle_list, int numParticles, int sub_particles[numParticles],int BoxOffset, float timestep)
+Box * build_boxes(Particle * particle_list, int numParticles, int * sub_particles,int BoxOffset, float timestep)
 {
     //printf("Building Box %d, Num Particles %d\n",BoxOffset,numParticles);
 	Box * parent = (Box *) malloc(sizeof(Box));
@@ -110,7 +126,7 @@ Box * build_boxes(Particle * particle_list, int numParticles, int sub_particles[
 		}
         //printf("Particle %d, reg %d\n",index, region);
 		sub_particle_count[region]+=1;
-		sub_particle_list[region] = realloc(sub_particle_list[region], sub_particle_count[region] * sizeof(int));
+		sub_particle_list[region] = (int *)realloc(sub_particle_list[region], sub_particle_count[region] * sizeof(int));
 		sub_particle_list[region][sub_particle_count[region] - 1] = index;
 	}
 	
